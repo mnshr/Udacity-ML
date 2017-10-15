@@ -50,8 +50,8 @@ class Environment(object):
         self.hang = 0.6
         self.intersections = OrderedDict()
         self.roads = []
-        for x in xrange(self.bounds[0], self.bounds[2] + 1):
-            for y in xrange(self.bounds[1], self.bounds[3] + 1):
+        for x in range(self.bounds[0], self.bounds[2] + 1):
+            for y in range(self.bounds[1], self.bounds[3] + 1):
                 self.intersections[(x, y)] = TrafficLight()  # A traffic light at each intersection
 
         for a in self.intersections:
@@ -62,20 +62,20 @@ class Environment(object):
                     self.roads.append((a, b))
 
         # Add environment boundaries
-        for x in xrange(self.bounds[0], self.bounds[2] + 1):
+        for x in range(self.bounds[0], self.bounds[2] + 1):
             self.roads.append(((x, self.bounds[1] - self.hang), (x, self.bounds[1])))
             self.roads.append(((x, self.bounds[3] + self.hang), (x, self.bounds[3])))
-        for y in xrange(self.bounds[1], self.bounds[3] + 1):
+        for y in range(self.bounds[1], self.bounds[3] + 1):
             self.roads.append(((self.bounds[0] - self.hang, y), (self.bounds[0], y)))
             self.roads.append(((self.bounds[2] + self.hang, y), (self.bounds[2], y)))    
 
         # Create dummy agents
-        for i in xrange(self.num_dummies):
+        for i in range(self.num_dummies):
             self.create_agent(DummyAgent)
 
         # Primary agent and associated parameters
         self.primary_agent = None  # to be set explicitly
-        self.enforce_deadline = True
+        self.enforce_deadline = False
 
         # Trial data (updated at the end of each trial)
         self.trial_data = {
@@ -92,7 +92,7 @@ class Environment(object):
         """ When called, create_agent creates an agent in the environment. """
 
         agent = agent_class(self, *args, **kwargs)
-        self.agent_states[agent] = {'location': random.choice(self.intersections.keys()), 'heading': (0, 1)}
+        self.agent_states[agent] = {'location': random.choice(list(self.intersections.keys())), 'heading': (0, 1)}
         return agent
 
     def set_primary_agent(self, agent, enforce_deadline=False):
@@ -129,7 +129,7 @@ class Environment(object):
         distance = self.compute_dist(start, destination)
         deadline = distance * 5 # 5 time steps per intersection away
         if(self.verbose == True): # Debugging
-            print "Environment.reset(): Trial set up with start = {}, destination = {}, deadline = {}".format(start, destination, deadline)
+            print ("Environment.reset(): Trial set up with start = {}, destination = {}, deadline = {}".format(start, destination, deadline))
 
         # Create a map of all possible initial positions
         positions = dict()
@@ -180,14 +180,14 @@ class Environment(object):
         """ This function is called when a time step is taken turing a trial. """
 
         # Pretty print to terminal
-        print ""
-        print "/-------------------"
-        print "| Step {} Results".format(self.t)
-        print "\-------------------"
-        print ""
+        print ("")
+        print ("/-------------------")
+        print ("| Step {} Results".format(self.t))
+        print ("\-------------------")
+        print ("")
 
         if(self.verbose == True): # Debugging
-            print "Environment.step(): t = {}".format(self.t)
+            print ("Environment.step(): t = {}".format(self.t))
 
         # Update agents, primary first
         if self.primary_agent is not None:
@@ -210,12 +210,12 @@ class Environment(object):
                 self.done = True
                 self.success = False
                 if self.verbose: # Debugging
-                    print "Environment.step(): Primary agent hit hard time limit ({})! Trial aborted.".format(self.hard_time_limit)
+                    print ("Environment.step(): Primary agent hit hard time limit ({})! Trial aborted.".format(self.hard_time_limit))
             elif self.enforce_deadline and agent_deadline <= 0:
                 self.done = True
                 self.success = False
                 if self.verbose: # Debugging
-                    print "Environment.step(): Primary agent ran out of time! Trial aborted."
+                    print ("Environment.step(): Primary agent ran out of time! Trial aborted.")
 
         self.t += 1
 
@@ -372,10 +372,10 @@ class Environment(object):
                 self.success = True
 
                 if(self.verbose == True): # Debugging
-                    print "Environment.act(): Primary agent has reached destination!"
+                    print ("Environment.act(): Primary agent has reached destination!")
 
             if(self.verbose == True): # Debugging
-                print "Environment.act() [POST]: location: {}, heading: {}, action: {}, reward: {}".format(location, heading, action, reward)
+                print ("Environment.act() [POST]: location: {}, heading: {}, action: {}, reward: {}".format(location, heading, action, reward))
 
             # Update metrics
             self.step_data['t'] = self.t
@@ -393,7 +393,7 @@ class Environment(object):
             self.trial_data['actions'][violation] += 1
 
             if(self.verbose == True): # Debugging
-                print "Environment.act(): Step data: {}".format(self.step_data)
+                print ("Environment.act(): Step data: {}".format(self.step_data))
         return reward
 
     def compute_dist(self, a, b):
